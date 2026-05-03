@@ -44,11 +44,15 @@ class GameScene:
         )
         self.dead = False
 
-        # Ground chunk: a single full-width platform at y=0
+        # Ground chunk: a thin sentinel chunk holding only the floor platform.
+        # Sized to just the floor's height so the next generated chunk starts
+        # immediately above (y=20) and the cat tower fills the visible area.
         ground = StandardPlatform(x=0.0, y=0.0, w=settings.INTERNAL_WIDTH, h=20.0)
         self.chunks: list[Chunk] = [
-            Chunk(y_start=0, y_end=settings.INTERNAL_HEIGHT, platforms=[ground]),
+            Chunk(y_start=0, y_end=20, platforms=[ground]),
         ]
+        # Pre-spawn two chunks so the player always has visible platforms ahead.
+        self._spawn_next_chunk()
         self._spawn_next_chunk()
 
         self.hazards: list = []
