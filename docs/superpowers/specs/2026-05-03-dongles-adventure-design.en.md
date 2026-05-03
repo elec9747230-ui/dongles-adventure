@@ -86,11 +86,36 @@ Menu → Game → Game Over (score shown) → Restart or back to Menu.
 
 The player starts with 1 life. Touching a hazard removes 1 life and grants **1.5s i-frames** (prevents chain hits); going below 0 ends the run. Falling kills regardless of remaining lives.
 
-## 6. UI / HUD
+## 6. Resolution / screen layout / HUD
 
-- **Top-left**: Current altitude (m, integer) / personal best (small)
-- **Top-right**: Lives remaining (fish icons, 0–3)
-- **Bottom-center**: "PAUSED — Press Esc to resume" while paused; "GAME OVER — Press R to restart" on game over.
+### 6.1 Resolution
+- **Window size**: 1920×1080 (Full HD; both windowed and fullscreen supported)
+- **Internal render resolution**: 360×540 → displayed at 720×1080 via **2x integer scaling** (keeps pixel art crisp)
+- All game logic uses internal coordinates → identical behavior in any window mode
+
+### 6.2 Screen partition
+| Region | Position | Size (px) |
+|---|---|---|
+| Left HUD | x=0 | 600×1080 |
+| Game area | x=600 | 720×1080 |
+| Right HUD | x=1320 | 600×1080 |
+
+### 6.3 Left HUD (game state)
+- **ALTITUDE**: Current altitude (large, emphasized)
+- **BEST**: Personal best
+- **LIVES**: Fish icons, 0–3
+- **POWERUPS**: Active power-ups + remaining time (e.g., "🌿 catnip 4.2s")
+- **CONTROLS**: Always-on control reminder (← → move, Space jump)
+
+### 6.4 Right HUD (progression info)
+- **ALTITUDE SCALE**: Vertical lines at hazard-introduction altitudes (50m, 150m, 300m, 500m), with the current altitude marked by an arrow → previews upcoming challenges visually
+- **NEXT HAZARD**: Icon + altitude of the next hazard to appear (e.g., "🐦 Crows @ 150m")
+- **TUNA**: Total tuna cans collected
+- **HINT**: "Esc: Pause", "R: Restart"
+
+### 6.5 In-game overlays
+- **Pause**: Translucent banner centered in the game area + "PAUSED — Press Esc to resume"
+- **Game over**: Large result panel centered in the game area (altitude reached, new-record flag, "Press R to restart")
 
 ## 7. Visual style
 
