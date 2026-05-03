@@ -26,6 +26,12 @@ class Chunk:
 
 
 def _pick_risky_class(altitude_m: int, rng: random.Random):
+    """Pick a variant that doesn't permanently break the climb chain.
+
+    StickyTapePlatform is intentionally excluded — it forbids jumping after
+    landing, which can strand the player when it sits between two chain links.
+    Disappearing platforms are OK because they grant 1 second to push off.
+    """
     candidates = [HammockPlatform]
     if altitude_m >= 50:
         candidates.append(RopePlatform)
@@ -33,8 +39,6 @@ def _pick_risky_class(altitude_m: int, rng: random.Random):
         candidates.append(SwingingPlatform)
     if altitude_m >= 200:
         candidates.append(DisappearingPlatform)
-    if altitude_m >= 300:
-        candidates.append(StickyTapePlatform)
     return rng.choice(candidates)
 
 
@@ -44,11 +48,13 @@ def generate_chunk(
     difficulty: DifficultyParams,
     rng: random.Random,
     prev_top_y: float | None = None,
+    prev_top_x: float | None = None,
 ) -> Chunk:
     """Generate one chunk above y_start. Guarantees reachable platforms.
 
-    `prev_top_y` is the y of the highest platform in the previous chunk; the
-    first platform in this chunk is constrained to be reachable from it.
+    `prev_top_y` / `prev_top_x` describe the highest platform in the previous
+    chunk; the first platform in this chunk is constrained to be reachable
+    from it (closes the cross-chunk reachability gap).
     """
     y_end = y_start + settings.INTERNAL_HEIGHT
     chunk = Chunk(y_start=y_start, y_end=y_end)
@@ -56,7 +62,7 @@ def generate_chunk(
     n = max(2, difficulty.platforms_per_chunk)
     band_h = settings.INTERNAL_HEIGHT / n
     plat_w = 60
-    last_x: float | None = None
+    last_x: float | None = prev_top_x  # horizontal reachability anchor
     last_y: float | None = prev_top_y  # vertical reachability anchor
 
     altitude_m = y_start // settings.PIXELS_PER_METER

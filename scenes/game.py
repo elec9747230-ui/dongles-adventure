@@ -70,9 +70,22 @@ class GameScene:
     def _spawn_next_chunk(self) -> None:
         top = self.chunks[-1]
         diff = difficulty_for_altitude(top.y_end // settings.PIXELS_PER_METER)
-        prev_top_y = max((p.y for p in top.platforms), default=None)
+        # Use the highest platform in the previous chunk as the reachability
+        # anchor for the new chunk's first platform — both vertically AND
+        # horizontally — so there's no broken-chain gap at chunk boundaries.
+        if top.platforms:
+            top_plat = max(top.platforms, key=lambda p: p.y)
+            prev_top_y = top_plat.y
+            prev_top_x = top_plat.x
+        else:
+            prev_top_y = None
+            prev_top_x = None
         new_chunk = generate_chunk(
-            y_start=top.y_end, difficulty=diff, rng=self.rng, prev_top_y=prev_top_y,
+            y_start=top.y_end,
+            difficulty=diff,
+            rng=self.rng,
+            prev_top_y=prev_top_y,
+            prev_top_x=prev_top_x,
         )
         self.chunks.append(new_chunk)
         # Spawn hazards/items immediately when the chunk is created so we never
