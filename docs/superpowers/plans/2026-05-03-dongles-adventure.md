@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> 한국어 버전: [2026-05-03-dongles-adventure.ko.md](./2026-05-03-dongles-adventure.ko.md)
+
 **Goal:** Build a Pygame-based vertical-scrolling endless platformer where Dongle (a white Persian cat) climbs an infinite cat tower, in the spirit of MSX *Magical Tree* + Doodle Jump.
 
 **Architecture:**
