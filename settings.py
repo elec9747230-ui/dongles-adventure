@@ -75,3 +75,10 @@ KEY_RIGHT = pygame.K_RIGHT
 KEY_JUMP = pygame.K_SPACE
 KEY_PAUSE = pygame.K_ESCAPE
 KEY_RESTART = pygame.K_r
+
+# --- Derived: maximum horizontal distance covered during one full jump ---
+# Using vy0 = JUMP_VELOCITY, gravity = GRAVITY, vx = MOVE_SPEED:
+#   apex time t1 = vy0 / GRAVITY
+#   total airtime ~ 2 * t1 (lands back at start altitude)
+MAX_HORIZONTAL_JUMP_DISTANCE = MOVE_SPEED * (2 * JUMP_VELOCITY / GRAVITY)
+HORIZONTAL_REACH_BUDGET = 0.70 * MAX_HORIZONTAL_JUMP_DISTANCE
