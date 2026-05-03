@@ -25,8 +25,11 @@ def init() -> None:
                 _SFX[name] = pygame.mixer.Sound(path)
             except pygame.error:
                 pass
-    bgm = os.path.join("assets", "music", "bgm_loop.ogg")
-    _BGM_PATH = bgm if os.path.exists(bgm) else None
+    for ext in ("ogg", "wav", "mp3"):
+        candidate = os.path.join("assets", "music", f"bgm_loop.{ext}")
+        if os.path.exists(candidate):
+            _BGM_PATH = candidate
+            break
 
 
 def play(name: str) -> None:
