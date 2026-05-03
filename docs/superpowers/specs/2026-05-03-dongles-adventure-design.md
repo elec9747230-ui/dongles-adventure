@@ -4,6 +4,8 @@
 - **상태**: 승인 대기 (사용자 검토 중)
 - **대상 산출물**: Python + Pygame 데스크톱 게임
 
+> English version: [2026-05-03-dongles-adventure-design.en.md](./2026-05-03-dongles-adventure-design.en.md)
+
 ## 1. 컨셉
 
 흰 페르시안 고양이 **동글이**가 무한히 솟아오르는 캣타워를 점프로 등반하는 세로 스크롤 플랫포머. MSX 클래식 *요술나무(Magical Tree, 코나미 1984)* 의 등반/추락사 메커니즘에 무한 절차 생성을 결합.
