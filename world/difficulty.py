@@ -31,7 +31,7 @@ def difficulty_for_altitude(altitude_m: int) -> DifficultyParams:
     t = min(1.0, altitude_m / 500.0)
 
     platforms_per_chunk = round(7 - 2 * t)            # 7 -> 5
-    risky_ratio = 0.0 + 0.6 * t                        # 0.0 -> 0.6
+    risky_ratio = 0.25 + 0.45 * t                      # 0.25 -> 0.70 (variety from start)
     hazard_density = 0.0 + 0.6 * t                     # 0.0 -> 0.6
 
     # 500m+ guarantees vacuum hazard density floor of 0.5

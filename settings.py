@@ -82,3 +82,9 @@ KEY_RESTART = pygame.K_r
 #   total airtime ~ 2 * t1 (lands back at start altitude)
 MAX_HORIZONTAL_JUMP_DISTANCE = MOVE_SPEED * (2 * JUMP_VELOCITY / GRAVITY)
 HORIZONTAL_REACH_BUDGET = 0.70 * MAX_HORIZONTAL_JUMP_DISTANCE
+
+# Vertical reach: jump apex = vy^2 / (2*g). Safety margin keeps next platform
+# inside the rising arc (player needs to actually catch its top, not graze it).
+MAX_VERTICAL_JUMP = (JUMP_VELOCITY * JUMP_VELOCITY) / (2 * GRAVITY)
+VERTICAL_REACH_BUDGET = 0.80 * MAX_VERTICAL_JUMP   # ~90 px
+MIN_VERTICAL_GAP = 36                              # don't stack platforms on top of each other

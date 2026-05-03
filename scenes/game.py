@@ -69,7 +69,10 @@ class GameScene:
     def _spawn_next_chunk(self) -> None:
         top = self.chunks[-1]
         diff = difficulty_for_altitude(top.y_end // settings.PIXELS_PER_METER)
-        new_chunk = generate_chunk(y_start=top.y_end, difficulty=diff, rng=self.rng)
+        prev_top_y = max((p.y for p in top.platforms), default=None)
+        new_chunk = generate_chunk(
+            y_start=top.y_end, difficulty=diff, rng=self.rng, prev_top_y=prev_top_y,
+        )
         self.chunks.append(new_chunk)
 
     def _process_pending_spawns(self) -> None:

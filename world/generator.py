@@ -38,8 +38,18 @@ def _pick_risky_class(altitude_m: int, rng: random.Random):
     return rng.choice(candidates)
 
 
-def generate_chunk(*, y_start: int, difficulty: DifficultyParams, rng: random.Random) -> Chunk:
-    """Generate one chunk above y_start. Guarantees reachable platforms."""
+def generate_chunk(
+    *,
+    y_start: int,
+    difficulty: DifficultyParams,
+    rng: random.Random,
+    prev_top_y: float | None = None,
+) -> Chunk:
+    """Generate one chunk above y_start. Guarantees reachable platforms.
+
+    `prev_top_y` is the y of the highest platform in the previous chunk; the
+    first platform in this chunk is constrained to be reachable from it.
+    """
     y_end = y_start + settings.INTERNAL_HEIGHT
     chunk = Chunk(y_start=y_start, y_end=y_end)
 
@@ -47,17 +57,26 @@ def generate_chunk(*, y_start: int, difficulty: DifficultyParams, rng: random.Ra
     band_h = settings.INTERNAL_HEIGHT / n
     plat_w = 60
     last_x: float | None = None
+    last_y: float | None = prev_top_y  # vertical reachability anchor
 
     altitude_m = y_start // settings.PIXELS_PER_METER
     risky_count = round(n * difficulty.risky_platform_ratio)
     risky_indices = set(rng.sample(range(n), risky_count)) if risky_count else set()
 
     for i in range(n):
-        # Y inside the chunk
-        y_local = i * band_h + rng.uniform(0.2 * band_h, 0.8 * band_h)
+        # Initial y candidate inside the chunk's band
+        y_local = i * band_h + rng.uniform(0.3 * band_h, 0.7 * band_h)
         y = y_start + y_local
 
-        # X chosen with reachability constraint relative to last_x
+        # Enforce vertical reachability: next platform must be jumpable from last
+        if last_y is not None:
+            y_max = last_y + settings.VERTICAL_REACH_BUDGET
+            y_min = last_y + settings.MIN_VERTICAL_GAP
+            if y_max < y_min:
+                y_max = y_min  # safety
+            y = max(y_min, min(y, y_max))
+
+        # X chosen with horizontal reachability constraint relative to last_x
         if last_x is None:
             x = rng.uniform(0, settings.INTERNAL_WIDTH - plat_w)
         else:
@@ -71,6 +90,7 @@ def generate_chunk(*, y_start: int, difficulty: DifficultyParams, rng: random.Ra
         plat = cls(x=x, y=y, w=plat_w, h=8.0)
         chunk.platforms.append(plat)
         last_x = x
+        last_y = y
 
     # Hazard rolling
     if difficulty.hazard_pool and rng.random() < difficulty.hazard_density:

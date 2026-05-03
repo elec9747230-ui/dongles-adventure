@@ -36,6 +36,39 @@ def test_chunk_platforms_are_reachable_from_one_below() -> None:
         )
 
 
+def test_chunk_platforms_are_vertically_reachable() -> None:
+    """Vertical gap between consecutive platforms must fit within the jump arc."""
+    for seed in range(20):
+        for altitude_m in (0, 100, 250, 400, 550):
+            chunk = generate_chunk(
+                y_start=altitude_m * settings.PIXELS_PER_METER,
+                difficulty=difficulty_for_altitude(altitude_m),
+                rng=random.Random(seed),
+            )
+            sorted_plats = sorted(chunk.platforms, key=lambda p: p.y)
+            for lower, upper in zip(sorted_plats, sorted_plats[1:]):
+                dy = upper.y - lower.y
+                assert dy <= settings.VERTICAL_REACH_BUDGET + 0.5, (
+                    f"Vertical gap {dy:.1f}px > budget {settings.VERTICAL_REACH_BUDGET:.1f}px "
+                    f"(seed={seed}, altitude={altitude_m}m)"
+                )
+                assert dy >= settings.MIN_VERTICAL_GAP - 0.1, (
+                    f"Platforms too close (dy={dy:.1f}px) — likely overlap"
+                )
+
+
+def test_chunk_first_platform_reachable_from_prev_chunk_top() -> None:
+    """When prev_top_y is supplied, the first platform is jumpable from it."""
+    chunk = generate_chunk(
+        y_start=540,
+        difficulty=difficulty_for_altitude(54),
+        rng=random.Random(5),
+        prev_top_y=480.0,
+    )
+    bottom = min(chunk.platforms, key=lambda p: p.y)
+    assert bottom.y - 480.0 <= settings.VERTICAL_REACH_BUDGET
+
+
 def test_chunk_generation_is_deterministic_with_same_seed() -> None:
     diff = difficulty_for_altitude(100)
     a = generate_chunk(y_start=0, difficulty=diff, rng=random.Random(42))
