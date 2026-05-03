@@ -1,85 +1,91 @@
-"""Draws Dongle's body in one of five states: idle / run / jump / fall / hurt.
+"""Draws Dongle's body — a small white Persian cat.
 
-This file is the single seam that swaps placeholder primitives for real
-sprite sheets later. All callers go through `draw_player`.
+Single seam for swapping placeholder primitives for real sprite sheets later.
+All callers go through `draw_player`. Kept stable in size to avoid the
+pulsing/jittery look from earlier dynamic squash/stretch.
 """
 from __future__ import annotations
-
-import math
 
 import pygame
 
 import settings
 
 
-def _state(player) -> str:  # noqa: ANN001
-    if player.iframe_timer > 0:
-        return "hurt"
-    if not player.grounded:
-        return "jump" if player.vy > 0 else "fall"
-    if abs(player.vx) > 0.1:
-        return "run"
-    return "idle"
+def _facing(player) -> int:  # noqa: ANN001
+    """Return -1 (left) or +1 (right) based on velocity, with stickiness."""
+    if player.vx < -1:
+        return -1
+    if player.vx > 1:
+        return 1
+    return getattr(player, "_last_facing", 1)
 
 
 def draw_player(surface: pygame.Surface, player, camera) -> None:  # noqa: ANN001
-    state = _state(player)
-
-    # i-frame blink: skip drawing every other 0.1s window
-    if state == "hurt":
-        blink_phase = int(player.iframe_timer * 10) % 2
-        if blink_phase == 0:
+    # i-frame blink: skip every other 0.15s window so the cat flashes
+    if player.iframe_timer > 0:
+        if int(player.iframe_timer * 6.7) % 2 == 0:
             return
 
-    # Squash/stretch hint for jump/fall
+    facing = _facing(player)
+    player._last_facing = facing  # type: ignore[attr-defined]
+
     w = settings.PLAYER_WIDTH
     h = settings.PLAYER_HEIGHT
-    if state == "jump":
-        w = int(w * 0.85)
-        h = int(h * 1.15)
-    elif state == "fall":
-        w = int(w * 1.10)
-        h = int(h * 0.90)
+    screen_y_top = int(camera.world_to_screen_y(player.y + h))
+    rect_x = int(player.x)
 
-    screen_y_top = camera.world_to_screen_y(player.y + h)
-    rect_x = int(player.x + (settings.PLAYER_WIDTH - w) / 2)
+    # Body: rounded ellipse on bottom, head sphere on top
+    body_rect = pygame.Rect(rect_x + 2, screen_y_top + h // 3, w - 4, (2 * h) // 3)
+    pygame.draw.ellipse(surface, settings.COLOR_PLAYER, body_rect)
+    pygame.draw.ellipse(surface, (215, 215, 215), body_rect.inflate(-4, -4))
 
-    # Body: white Persian cat (rounded body)
-    body = pygame.Rect(rect_x, int(screen_y_top), w, h)
-    pygame.draw.ellipse(surface, settings.COLOR_PLAYER, body)
-    # Inner shadow
-    pygame.draw.ellipse(surface, (210, 210, 210), body.inflate(-6, -6))
+    head_r = h // 3
+    head_cx = rect_x + w // 2
+    head_cy = screen_y_top + head_r + 2
+    pygame.draw.circle(surface, settings.COLOR_PLAYER, (head_cx, head_cy), head_r)
+    pygame.draw.circle(surface, (215, 215, 215), (head_cx, head_cy), head_r - 2)
 
-    # Two ear triangles
-    ear_h = h // 4
+    # Ears (two pointed triangles on the head)
+    ear_h = head_r
     pygame.draw.polygon(
         surface, settings.COLOR_PLAYER,
         [
-            (rect_x + 4, int(screen_y_top + 6)),
-            (rect_x + 4, int(screen_y_top - ear_h + 6)),
-            (rect_x + 4 + ear_h, int(screen_y_top + 6)),
+            (head_cx - head_r + 2, head_cy - head_r // 2),
+            (head_cx - head_r // 2, head_cy - head_r - ear_h // 2),
+            (head_cx - 2, head_cy - head_r // 2),
         ],
     )
     pygame.draw.polygon(
         surface, settings.COLOR_PLAYER,
         [
-            (rect_x + w - 4, int(screen_y_top + 6)),
-            (rect_x + w - 4, int(screen_y_top - ear_h + 6)),
-            (rect_x + w - 4 - ear_h, int(screen_y_top + 6)),
+            (head_cx + head_r - 2, head_cy - head_r // 2),
+            (head_cx + head_r // 2, head_cy - head_r - ear_h // 2),
+            (head_cx + 2, head_cy - head_r // 2),
+        ],
+    )
+    # Pink inner ears
+    pygame.draw.polygon(
+        surface, (240, 180, 200),
+        [
+            (head_cx - head_r + 4, head_cy - head_r // 2 - 1),
+            (head_cx - head_r // 2, head_cy - head_r - ear_h // 4),
+            (head_cx - 4, head_cy - head_r // 2 - 1),
+        ],
+    )
+    pygame.draw.polygon(
+        surface, (240, 180, 200),
+        [
+            (head_cx + head_r - 4, head_cy - head_r // 2 - 1),
+            (head_cx + head_r // 2, head_cy - head_r - ear_h // 4),
+            (head_cx + 4, head_cy - head_r // 2 - 1),
         ],
     )
 
-    # Eyes (two dots) — facing direction reflected by horizontal velocity
-    eye_offset = 4 if player.vx >= 0 else -4
-    eye_y = int(screen_y_top + h // 3)
-    pygame.draw.circle(surface, (40, 40, 60), (rect_x + w // 2 - 5 + eye_offset, eye_y), 2)
-    pygame.draw.circle(surface, (40, 40, 60), (rect_x + w // 2 + 5 + eye_offset, eye_y), 2)
+    # Eyes: two dots, slightly offset by facing
+    eye_dx = 2 * facing
+    eye_y = head_cy - 1
+    pygame.draw.circle(surface, (40, 40, 60), (head_cx - 4 + eye_dx, eye_y), 2)
+    pygame.draw.circle(surface, (40, 40, 60), (head_cx + 4 + eye_dx, eye_y), 2)
 
-    # Run animation: tiny ground shadow flicker
-    if state == "run":
-        bob = int(math.sin(pygame.time.get_ticks() / 80) * 1)
-        pygame.draw.line(
-            surface, (180, 180, 180),
-            (rect_x, int(screen_y_top + h - 1 + bob)),
-            (rect_x + w, int(screen_y_top + h - 1 + bob)), 1,
-        )
+    # Tiny pink nose
+    pygame.draw.circle(surface, (240, 150, 170), (head_cx, head_cy + 3), 1)

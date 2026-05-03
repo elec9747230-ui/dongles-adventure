@@ -4,7 +4,9 @@ from world.difficulty import difficulty_for_altitude
 def test_starting_altitude_uses_easy_params() -> None:
     p = difficulty_for_altitude(altitude_m=0)
     assert p.platforms_per_chunk >= 5
-    assert p.hazard_density == 0.0
+    # Some hazards from the very start so the player sees variety quickly,
+    # but density should still be lower than the late game.
+    assert 0.0 < p.hazard_density < 0.5
     assert "yarn" in p.hazard_pool
 
 

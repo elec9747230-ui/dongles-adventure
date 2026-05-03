@@ -92,20 +92,28 @@ def generate_chunk(
         last_x = x
         last_y = y
 
-    # Hazard rolling
-    if difficulty.hazard_pool and rng.random() < difficulty.hazard_density:
-        kind = rng.choice(difficulty.hazard_pool)
-        y = rng.uniform(y_start + 50, y_end - 50)
-        chunk.hazard_requests.append((kind, y))
+    # Hazard rolling: up to 2 hazards per chunk, biased toward the most
+    # recently unlocked kind so the player meets new threats as they climb.
+    pool = difficulty.hazard_pool
+    if pool:
+        # Weight: linearly higher for later entries (newest unlocked = heaviest).
+        weights = [1 + 2 * i for i in range(len(pool))]
+        max_count = 2 if difficulty.hazard_density >= 0.6 else 1
+        for _ in range(max_count):
+            if rng.random() >= difficulty.hazard_density:
+                continue
+            kind = rng.choices(pool, weights=weights, k=1)[0]
+            y = rng.uniform(y_start + 50, y_end - 50)
+            chunk.hazard_requests.append((kind, y))
 
-    # Items: ~50% chance per chunk to drop one item
-    if rng.random() < 0.5:
+    # Items: ~65% chance per chunk to drop one item, balanced weights
+    if rng.random() < 0.65:
         ikind = rng.choices(
             population=["tuna", "feather", "catnip", "fish"],
-            weights=[0.6, 0.2, 0.15, 0.05],
+            weights=[0.40, 0.25, 0.25, 0.10],
             k=1,
         )[0]
-        ix = rng.uniform(0, settings.INTERNAL_WIDTH - 14)
+        ix = rng.uniform(0, settings.INTERNAL_WIDTH - 24)
         iy = rng.uniform(y_start + 50, y_end - 50)
         chunk.item_requests.append((ikind, ix, iy))
 

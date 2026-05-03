@@ -44,6 +44,13 @@ class GameScene:
         )
         self.dead = False
 
+        # IMPORTANT: hazard/item lists must exist BEFORE _spawn_next_chunk()
+        # below, because the spawn helper appends to them at chunk-creation time.
+        self.hazards: list = []
+        self.items: list = []
+        self.tuna_count: int = 0
+        self._vacuum_spawned: bool = False
+
         # Ground chunk: a thin sentinel chunk holding only the floor platform.
         # Sized to just the floor's height so the next generated chunk starts
         # immediately above (y=20) and the cat tower fills the visible area.
@@ -54,12 +61,6 @@ class GameScene:
         # Pre-spawn two chunks so the player always has visible platforms ahead.
         self._spawn_next_chunk()
         self._spawn_next_chunk()
-
-        self.hazards: list = []
-        self.items: list = []
-        self.tuna_count: int = 0
-        self._processed_chunk_ids: set[int] = set()
-        self._vacuum_spawned: bool = False
 
         self.input = InputState()
         self._internal = pygame.Surface((settings.INTERNAL_WIDTH, settings.INTERNAL_HEIGHT))
@@ -74,25 +75,20 @@ class GameScene:
             y_start=top.y_end, difficulty=diff, rng=self.rng, prev_top_y=prev_top_y,
         )
         self.chunks.append(new_chunk)
-
-    def _process_pending_spawns(self) -> None:
-        for ch in self.chunks:
-            key = id(ch)
-            if key in self._processed_chunk_ids:
-                continue
-            for kind, world_y in ch.hazard_requests:
-                if kind == "vacuum":
-                    if self._vacuum_spawned:
-                        continue
-                    spawn_y = self.camera.y_top - settings.INTERNAL_HEIGHT
-                    self.hazards.append(make_hazard("vacuum", x=0, y=spawn_y))
-                    self._vacuum_spawned = True
-                else:
-                    x = self.rng.uniform(0, settings.INTERNAL_WIDTH - 14)
-                    self.hazards.append(make_hazard(kind, x=x, y=world_y))
-            for ikind, ix, iy in ch.item_requests:
-                self.items.append(make_item(ikind, x=ix, y=iy))
-            self._processed_chunk_ids.add(key)
+        # Spawn hazards/items immediately when the chunk is created so we never
+        # double-process and never lose spawns to garbage-collected chunk ids.
+        for kind, world_y in new_chunk.hazard_requests:
+            if kind == "vacuum":
+                if self._vacuum_spawned:
+                    continue
+                spawn_y = self.camera.y_top - settings.INTERNAL_HEIGHT
+                self.hazards.append(make_hazard("vacuum", x=0, y=spawn_y))
+                self._vacuum_spawned = True
+            else:
+                x = self.rng.uniform(0, settings.INTERNAL_WIDTH - 24)
+                self.hazards.append(make_hazard(kind, x=x, y=world_y))
+        for ikind, ix, iy in new_chunk.item_requests:
+            self.items.append(make_item(ikind, x=ix, y=iy))
 
     # ------------------------------------------------------- scene API
 
@@ -147,8 +143,6 @@ class GameScene:
         self.chunks = [
             ch for ch in self.chunks if not self.camera.is_below_screen(ch.y_end)
         ]
-
-        self._process_pending_spawns()
 
         # Hazard updates + collision
         for h in self.hazards:

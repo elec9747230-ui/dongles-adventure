@@ -41,12 +41,13 @@ JUMP_BUFFER = 0.10          # seconds before landing where Space input still tri
 PLAYER_SCREEN_OFFSET_FROM_TOP = 324  # px in internal canvas (60% of 540)
 
 # --- Difficulty / altitude bands ------------------------------------------
+# Lowered so the player sees variety within the first minute of play.
 HAZARD_GATE_YARN = 0      # m
-HAZARD_GATE_MOUSE = 50    # m
-HAZARD_GATE_CROW = 150    # m
-HAZARD_GATE_DOG = 300     # m
-HAZARD_GATE_SPRAY = 300   # m
-HAZARD_GATE_VACUUM = 500  # m
+HAZARD_GATE_MOUSE = 20    # m
+HAZARD_GATE_CROW = 60     # m
+HAZARD_GATE_DOG = 120     # m
+HAZARD_GATE_SPRAY = 150   # m
+HAZARD_GATE_VACUUM = 400  # m
 
 # --- Lives -----------------------------------------------------------------
 START_LIVES = 1

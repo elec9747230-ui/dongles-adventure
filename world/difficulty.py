@@ -27,16 +27,17 @@ def difficulty_for_altitude(altitude_m: int) -> DifficultyParams:
     if altitude_m >= settings.HAZARD_GATE_VACUUM:
         pool.append("vacuum")
 
-    # Linear interpolation across 0..500m, clamped beyond.
-    t = min(1.0, altitude_m / 500.0)
+    # Linear interpolation across 0..400m, clamped beyond.
+    t = min(1.0, altitude_m / 400.0)
 
     platforms_per_chunk = round(7 - 2 * t)            # 7 -> 5
     risky_ratio = 0.25 + 0.45 * t                      # 0.25 -> 0.70 (variety from start)
-    hazard_density = 0.0 + 0.6 * t                     # 0.0 -> 0.6
+    # Hazards: ~30% chance per chunk at start, 80% at top.
+    hazard_density = 0.30 + 0.50 * t
 
-    # 500m+ guarantees vacuum hazard density floor of 0.5
+    # Vacuum tier guarantees a high density floor.
     if altitude_m >= settings.HAZARD_GATE_VACUUM:
-        hazard_density = max(hazard_density, 0.5)
+        hazard_density = max(hazard_density, 0.6)
 
     return DifficultyParams(
         platforms_per_chunk=platforms_per_chunk,
