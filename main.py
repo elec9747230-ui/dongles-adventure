@@ -1,4 +1,10 @@
-"""Dongle's Adventure - entry point."""
+"""Dongle's Adventure - entry point.
+
+Boots Pygame, owns the main loop, and orchestrates a tiny scene state machine
+(menu -> game -> gameover -> game). Heavy game modules are imported *inside*
+``main()`` so the splash window appears immediately while the rest of the
+engine wakes up.
+"""
 from __future__ import annotations
 
 import sys
@@ -9,12 +15,22 @@ import settings
 
 
 def main() -> int:
+    """Run the game until the player quits.
+
+    Returns:
+        Process exit code (0 = clean exit). Suitable to pass to ``sys.exit``.
+    """
+    # Pygame init order matters: the core subsystems must be up before any
+    # display or font surface is created.
     pygame.init()
     pygame.font.init()
     screen = pygame.display.set_mode((settings.WINDOW_WIDTH, settings.WINDOW_HEIGHT))
     pygame.display.set_caption("Dongle's Adventure")
     clock = pygame.time.Clock()
 
+    # Deferred imports: these modules transitively pull in pygame surfaces and
+    # asset loading, so we wait until after ``set_mode`` to keep startup snappy
+    # and to avoid surface-conversion warnings.
     from engine import audio
     from engine.highscore import load_high_score, save_high_score
     from scenes._hud import Hud
@@ -26,6 +42,10 @@ def main() -> int:
     audio.init()
     audio.start_bgm()
 
+    # Scene-stack init: we don't use a real stack because transitions are
+    # strictly linear (menu -> game -> gameover -> game). A single ``state``
+    # string plus three optional scene slots is simpler and avoids the
+    # bookkeeping of push/pop semantics we'd never use.
     hud = Hud()
     best_m = load_high_score()
     state = "menu"  # menu | game | gameover
@@ -57,6 +77,9 @@ def main() -> int:
             else:
                 gameover.handle_event(event)
 
+        # ``tick`` returns the elapsed milliseconds since the previous call and
+        # also caps the loop to FPS. Convert to seconds so physics integration
+        # in the scenes can use SI-friendly units.
         dt = clock.tick(settings.FPS) / 1000.0
 
         if state == "menu":
@@ -67,6 +90,8 @@ def main() -> int:
         elif state == "game":
             scene.update(dt)
             if scene.dead:
+                # Persist the high score *only* when beaten; this avoids
+                # rewriting the file on every death.
                 final_m = scene.player.altitude_m
                 new_record = final_m > best_m
                 if new_record:
@@ -77,6 +102,8 @@ def main() -> int:
         else:  # gameover
             gameover.update(dt)
             if gameover.restart_requested:
+                # Drop the previous GameScene so its world/chunks/entities are
+                # garbage-collected before the new run allocates its own.
                 scene = GameScene()
                 gameover = None
                 state = "game"
@@ -120,6 +147,8 @@ def main() -> int:
 
         pygame.display.flip()
 
+    # Exit cleanup: release SDL/audio handles before the process exits so the
+    # OS doesn't leak the audio device on rapid relaunches.
     pygame.quit()
     return 0
 

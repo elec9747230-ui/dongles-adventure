@@ -1,0 +1,43 @@
+digraph "packages_Dongles" {
+rankdir=BT
+charset="utf-8"
+"engine" [color="black", label=<engine>, shape="box", style="solid"];
+"engine.audio" [color="black", label=<engine.audio>, shape="box", style="solid"];
+"engine.camera" [color="black", label=<engine.camera>, shape="box", style="solid"];
+"engine.highscore" [color="black", label=<engine.highscore>, shape="box", style="solid"];
+"engine.input" [color="black", label=<engine.input>, shape="box", style="solid"];
+"engine.physics" [color="black", label=<engine.physics>, shape="box", style="solid"];
+"entities" [color="black", label=<entities>, shape="box", style="solid"];
+"entities.hazards" [color="black", label=<entities.hazards>, shape="box", style="solid"];
+"entities.items" [color="black", label=<entities.items>, shape="box", style="solid"];
+"entities.platforms" [color="black", label=<entities.platforms>, shape="box", style="solid"];
+"entities.player" [color="black", label=<entities.player>, shape="box", style="solid"];
+"entities.player_render" [color="black", label=<entities.player_render>, shape="box", style="solid"];
+"scenes" [color="black", label=<scenes>, shape="box", style="solid"];
+"scenes._hud" [color="black", label=<scenes._hud>, shape="box", style="solid"];
+"scenes.game" [color="black", label=<scenes.game>, shape="box", style="solid"];
+"scenes.gameover" [color="black", label=<scenes.gameover>, shape="box", style="solid"];
+"scenes.menu" [color="black", label=<scenes.menu>, shape="box", style="solid"];
+"world" [color="black", label=<world>, shape="box", style="solid"];
+"world.difficulty" [color="black", label=<world.difficulty>, shape="box", style="solid"];
+"world.generator" [color="black", label=<world.generator>, shape="box", style="solid"];
+"world.next_hazard" [color="black", label=<world.next_hazard>, shape="box", style="solid"];
+"entities.hazards" -> "engine.physics" [arrowhead="open", arrowtail="none"];
+"entities.items" -> "engine.physics" [arrowhead="open", arrowtail="none"];
+"entities.platforms" -> "engine.physics" [arrowhead="open", arrowtail="none"];
+"entities.player" -> "engine.physics" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "engine" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "engine.audio" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "engine.camera" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "engine.input" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "engine.physics" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "entities.hazards" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "entities.items" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "entities.platforms" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "entities.player" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "entities.player_render" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "world.difficulty" [arrowhead="open", arrowtail="none"];
+"scenes.game" -> "world.generator" [arrowhead="open", arrowtail="none"];
+"world.generator" -> "entities.platforms" [arrowhead="open", arrowtail="none"];
+"world.generator" -> "world.difficulty" [arrowhead="open", arrowtail="none"];
+}

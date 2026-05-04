@@ -1,0 +1,240 @@
+@startuml classes_Dongles
+set namespaceSeparator none
+class "Camera" as engine.camera.Camera {
+  player_offset_from_top : int
+  screen_height : int
+  y_top : float
+  follow(player_world_y: float) -> None
+  is_below_screen(world_y: float) -> bool
+  world_to_screen_y(world_y: float) -> float
+}
+class "Catnip" as entities.items.Catnip {
+  kind : str
+  apply(player) -> int
+  draw(surface: pygame.Surface, camera) -> None
+}
+class "Chunk" as world.generator.Chunk {
+  hazard_requests : list[tuple[str, float]]
+  item_requests : list[tuple[str, float, float]]
+  platforms : list
+  y_end : int
+  y_start : int
+}
+class "Crow" as entities.hazards.Crow {
+  kind : str
+  vx : float
+  x
+  y
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float, camera) -> None
+}
+class "DifficultyParams" as world.difficulty.DifficultyParams {
+  hazard_density : float
+  hazard_pool : tuple[str, ...]
+  platforms_per_chunk : int
+  risky_platform_ratio : float
+}
+class "DisappearingPlatform" as entities.platforms.DisappearingPlatform {
+  gone : bool
+  draw(surface: pygame.Surface, camera) -> None
+  on_landed(player) -> None
+  update(dt: float) -> None
+}
+class "Dog" as entities.hazards.Dog {
+  kind : str
+  draw(surface: pygame.Surface, camera) -> None
+}
+class "Feather" as entities.items.Feather {
+  kind : str
+  apply(player) -> int
+  draw(surface: pygame.Surface, camera) -> None
+}
+class "Fish" as entities.items.Fish {
+  kind : str
+  apply(player) -> int
+  draw(surface: pygame.Surface, camera) -> None
+}
+class "GameOverScene" as scenes.gameover.GameOverScene {
+  altitude_m
+  best_m
+  font_huge : Font
+  font_med : Font
+  new_record
+  restart_requested : bool
+  {abstract}begin_frame() -> None
+  draw(window: pygame.Surface) -> None
+  handle_event(event: pygame.event.Event) -> None
+  {abstract}update(dt: float) -> None
+}
+class "GameScene" as scenes.game.GameScene {
+  camera
+  chunks : list[Chunk]
+  dead : bool
+  hazards : list
+  input
+  items : list
+  player
+  rng : Random
+  tuna_count : int
+  active_powerups() -> list[tuple[str, float]]
+  begin_frame() -> None
+  draw(window: pygame.Surface) -> None
+  handle_event(event: pygame.event.Event) -> None
+  update(dt: float) -> None
+}
+class "HammockPlatform" as entities.platforms.HammockPlatform {
+  draw(surface: pygame.Surface, camera) -> None
+}
+class "Hazard" as entities.hazards.Hazard {
+  dead : bool
+  h : float
+  kind : str
+  lethal : bool
+  rect : Rect
+  w : float
+  x : float
+  y : float
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float, camera) -> None
+}
+class "Hud" as scenes._hud.Hud {
+  font_large : Font
+  font_med : Font
+  font_small : Font
+  draw(window: pygame.Surface) -> None
+}
+class "InputState" as engine.input.InputState {
+  begin_frame() -> None
+  handle_event(event: pygame.event.Event) -> None
+  is_held(key: int) -> bool
+  was_pressed(key: int) -> bool
+}
+class "Item" as entities.items.Item {
+  dead : bool
+  h : int
+  kind : str
+  rect : Rect
+  w : int
+  x : float
+  y : float
+  apply(player) -> int
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float, camera) -> None
+}
+class "MenuScene" as scenes.menu.MenuScene {
+  best_m
+  font_med : Font
+  font_title : Font
+  start_requested : bool
+  {abstract}begin_frame() -> None
+  draw(window: pygame.Surface) -> None
+  handle_event(event: pygame.event.Event) -> None
+  {abstract}update(dt: float) -> None
+}
+class "Mouse" as entities.hazards.Mouse {
+  kind : str
+  vx : float
+  x
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float, camera) -> None
+}
+class "Player" as entities.player.Player {
+  altitude_m : int
+  grounded : bool
+  iframe_timer : float
+  invincible_timer : float
+  is_alive : bool
+  jump_boost_timer : float
+  just_jumped : bool
+  just_landed : bool
+  lives : int
+  rect : Rect
+  vx : float
+  vy : float
+  x : float, int
+  y : float
+  set_input() -> None
+  take_hit() -> None
+  update(dt: float) -> None
+}
+class "Rect" as engine.physics.Rect {
+  bottom : float
+  h : float
+  left : float
+  right : float
+  top : float
+  w : float
+  x : float
+  y : float
+}
+class "RopePlatform" as entities.platforms.RopePlatform {
+  draw(surface: pygame.Surface, camera) -> None
+}
+class "SprayWater" as entities.hazards.SprayWater {
+  dead : bool
+  kind : str
+  vx : float
+  x
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float, camera) -> None
+}
+class "StandardPlatform" as entities.platforms.StandardPlatform {
+  h : float
+  rect : Rect
+  top : float
+  w : float
+  x : float
+  y : float
+  draw(surface: pygame.Surface, camera) -> None
+  {abstract}on_landed(player) -> None
+  {abstract}update(dt: float) -> None
+}
+class "StickyTapePlatform" as entities.platforms.StickyTapePlatform {
+  draw(surface: pygame.Surface, camera) -> None
+  on_landed(player) -> None
+}
+class "SwingingPlatform" as entities.platforms.SwingingPlatform {
+  x
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float) -> None
+}
+class "TunaCan" as entities.items.TunaCan {
+  kind : str
+  apply(player) -> int
+  draw(surface: pygame.Surface, camera) -> None
+}
+class "Vacuum" as entities.hazards.Vacuum {
+  SPEED : float
+  kind : str
+  lethal : bool
+  y
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float, camera) -> None
+}
+class "YarnBall" as entities.hazards.YarnBall {
+  kind : str
+  vy : float
+  y
+  draw(surface: pygame.Surface, camera) -> None
+  update(dt: float, camera) -> None
+}
+entities.hazards.Crow --|> entities.hazards.Hazard
+entities.hazards.Dog --|> entities.hazards.Hazard
+entities.hazards.Mouse --|> entities.hazards.Hazard
+entities.hazards.SprayWater --|> entities.hazards.Hazard
+entities.hazards.Vacuum --|> entities.hazards.Hazard
+entities.hazards.YarnBall --|> entities.hazards.Hazard
+entities.items.Catnip --|> entities.items.Item
+entities.items.Feather --|> entities.items.Item
+entities.items.Fish --|> entities.items.Item
+entities.items.TunaCan --|> entities.items.Item
+entities.platforms.DisappearingPlatform --|> entities.platforms.StandardPlatform
+entities.platforms.HammockPlatform --|> entities.platforms.StandardPlatform
+entities.platforms.RopePlatform --|> entities.platforms.StandardPlatform
+entities.platforms.StickyTapePlatform --|> entities.platforms.StandardPlatform
+entities.platforms.SwingingPlatform --|> entities.platforms.StandardPlatform
+scenes.game.GameScene --> world.generator.Chunk : chunks
+engine.camera.Camera --* scenes.game.GameScene : camera
+engine.input.InputState --* scenes.game.GameScene : input
+entities.player.Player --* scenes.game.GameScene : player
+@enduml

@@ -1,0 +1,61 @@
+classDiagram
+  class engine {
+  }
+  class audio {
+  }
+  class camera {
+  }
+  class highscore {
+  }
+  class input {
+  }
+  class physics {
+  }
+  class entities {
+  }
+  class hazards {
+  }
+  class items {
+  }
+  class platforms {
+  }
+  class player {
+  }
+  class player_render {
+  }
+  class scenes {
+  }
+  class _hud {
+  }
+  class game {
+  }
+  class gameover {
+  }
+  class menu {
+  }
+  class world {
+  }
+  class difficulty {
+  }
+  class generator {
+  }
+  class next_hazard {
+  }
+  hazards --> physics
+  items --> physics
+  platforms --> physics
+  player --> physics
+  game --> engine
+  game --> audio
+  game --> camera
+  game --> input
+  game --> physics
+  game --> hazards
+  game --> items
+  game --> platforms
+  game --> player
+  game --> player_render
+  game --> difficulty
+  game --> generator
+  generator --> platforms
+  generator --> difficulty

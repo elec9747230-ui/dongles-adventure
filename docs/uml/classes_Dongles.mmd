@@ -1,0 +1,238 @@
+classDiagram
+  class Camera {
+    player_offset_from_top : int
+    screen_height : int
+    y_top : float
+    follow(player_world_y: float) None
+    is_below_screen(world_y: float) bool
+    world_to_screen_y(world_y: float) float
+  }
+  class Catnip {
+    kind : str
+    apply(player) int
+    draw(surface: pygame.Surface, camera) None
+  }
+  class Chunk {
+    hazard_requests : list[tuple[str, float]]
+    item_requests : list[tuple[str, float, float]]
+    platforms : list
+    y_end : int
+    y_start : int
+  }
+  class Crow {
+    kind : str
+    vx : float
+    x
+    y
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float, camera) None
+  }
+  class DifficultyParams {
+    hazard_density : float
+    hazard_pool : tuple[str, ...]
+    platforms_per_chunk : int
+    risky_platform_ratio : float
+  }
+  class DisappearingPlatform {
+    gone : bool
+    draw(surface: pygame.Surface, camera) None
+    on_landed(player) None
+    update(dt: float) None
+  }
+  class Dog {
+    kind : str
+    draw(surface: pygame.Surface, camera) None
+  }
+  class Feather {
+    kind : str
+    apply(player) int
+    draw(surface: pygame.Surface, camera) None
+  }
+  class Fish {
+    kind : str
+    apply(player) int
+    draw(surface: pygame.Surface, camera) None
+  }
+  class GameOverScene {
+    altitude_m
+    best_m
+    font_huge : Font
+    font_med : Font
+    new_record
+    restart_requested : bool
+    begin_frame()* None
+    draw(window: pygame.Surface) None
+    handle_event(event: pygame.event.Event) None
+    update(dt: float)* None
+  }
+  class GameScene {
+    camera
+    chunks : list[Chunk]
+    dead : bool
+    hazards : list
+    input
+    items : list
+    player
+    rng : Random
+    tuna_count : int
+    active_powerups() list[tuple[str, float]]
+    begin_frame() None
+    draw(window: pygame.Surface) None
+    handle_event(event: pygame.event.Event) None
+    update(dt: float) None
+  }
+  class HammockPlatform {
+    draw(surface: pygame.Surface, camera) None
+  }
+  class Hazard {
+    dead : bool
+    h : float
+    kind : str
+    lethal : bool
+    rect : Rect
+    w : float
+    x : float
+    y : float
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float, camera) None
+  }
+  class Hud {
+    font_large : Font
+    font_med : Font
+    font_small : Font
+    draw(window: pygame.Surface) None
+  }
+  class InputState {
+    begin_frame() None
+    handle_event(event: pygame.event.Event) None
+    is_held(key: int) bool
+    was_pressed(key: int) bool
+  }
+  class Item {
+    dead : bool
+    h : int
+    kind : str
+    rect : Rect
+    w : int
+    x : float
+    y : float
+    apply(player) int
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float, camera) None
+  }
+  class MenuScene {
+    best_m
+    font_med : Font
+    font_title : Font
+    start_requested : bool
+    begin_frame()* None
+    draw(window: pygame.Surface) None
+    handle_event(event: pygame.event.Event) None
+    update(dt: float)* None
+  }
+  class Mouse {
+    kind : str
+    vx : float
+    x
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float, camera) None
+  }
+  class Player {
+    altitude_m : int
+    grounded : bool
+    iframe_timer : float
+    invincible_timer : float
+    is_alive : bool
+    jump_boost_timer : float
+    just_jumped : bool
+    just_landed : bool
+    lives : int
+    rect : Rect
+    vx : float
+    vy : float
+    x : float, int
+    y : float
+    set_input() None
+    take_hit() None
+    update(dt: float) None
+  }
+  class Rect {
+    bottom : float
+    h : float
+    left : float
+    right : float
+    top : float
+    w : float
+    x : float
+    y : float
+  }
+  class RopePlatform {
+    draw(surface: pygame.Surface, camera) None
+  }
+  class SprayWater {
+    dead : bool
+    kind : str
+    vx : float
+    x
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float, camera) None
+  }
+  class StandardPlatform {
+    h : float
+    rect : Rect
+    top : float
+    w : float
+    x : float
+    y : float
+    draw(surface: pygame.Surface, camera) None
+    on_landed(player)* None
+    update(dt: float)* None
+  }
+  class StickyTapePlatform {
+    draw(surface: pygame.Surface, camera) None
+    on_landed(player) None
+  }
+  class SwingingPlatform {
+    x
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float) None
+  }
+  class TunaCan {
+    kind : str
+    apply(player) int
+    draw(surface: pygame.Surface, camera) None
+  }
+  class Vacuum {
+    SPEED : float
+    kind : str
+    lethal : bool
+    y
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float, camera) None
+  }
+  class YarnBall {
+    kind : str
+    vy : float
+    y
+    draw(surface: pygame.Surface, camera) None
+    update(dt: float, camera) None
+  }
+  Crow --|> Hazard
+  Dog --|> Hazard
+  Mouse --|> Hazard
+  SprayWater --|> Hazard
+  Vacuum --|> Hazard
+  YarnBall --|> Hazard
+  Catnip --|> Item
+  Feather --|> Item
+  Fish --|> Item
+  TunaCan --|> Item
+  DisappearingPlatform --|> StandardPlatform
+  HammockPlatform --|> StandardPlatform
+  RopePlatform --|> StandardPlatform
+  StickyTapePlatform --|> StandardPlatform
+  SwingingPlatform --|> StandardPlatform
+  GameScene --> Chunk : chunks
+  Camera --* GameScene : camera
+  InputState --* GameScene : input
+  Player --* GameScene : player

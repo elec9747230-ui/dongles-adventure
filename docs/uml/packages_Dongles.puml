@@ -1,0 +1,63 @@
+@startuml packages_Dongles
+set namespaceSeparator none
+package "engine" as engine {
+}
+package "engine.audio" as engine.audio {
+}
+package "engine.camera" as engine.camera {
+}
+package "engine.highscore" as engine.highscore {
+}
+package "engine.input" as engine.input {
+}
+package "engine.physics" as engine.physics {
+}
+package "entities" as entities {
+}
+package "entities.hazards" as entities.hazards {
+}
+package "entities.items" as entities.items {
+}
+package "entities.platforms" as entities.platforms {
+}
+package "entities.player" as entities.player {
+}
+package "entities.player_render" as entities.player_render {
+}
+package "scenes" as scenes {
+}
+package "scenes._hud" as scenes._hud {
+}
+package "scenes.game" as scenes.game {
+}
+package "scenes.gameover" as scenes.gameover {
+}
+package "scenes.menu" as scenes.menu {
+}
+package "world" as world {
+}
+package "world.difficulty" as world.difficulty {
+}
+package "world.generator" as world.generator {
+}
+package "world.next_hazard" as world.next_hazard {
+}
+entities.hazards --> engine.physics
+entities.items --> engine.physics
+entities.platforms --> engine.physics
+entities.player --> engine.physics
+scenes.game --> engine
+scenes.game --> engine.audio
+scenes.game --> engine.camera
+scenes.game --> engine.input
+scenes.game --> engine.physics
+scenes.game --> entities.hazards
+scenes.game --> entities.items
+scenes.game --> entities.platforms
+scenes.game --> entities.player
+scenes.game --> entities.player_render
+scenes.game --> world.difficulty
+scenes.game --> world.generator
+world.generator --> entities.platforms
+world.generator --> world.difficulty
+@enduml
